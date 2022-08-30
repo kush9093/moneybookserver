@@ -46,6 +46,25 @@ router.get("/", async (req, resp) => {
     }
 });
 
+router.get("/search", async (req, resp) => {
+
+    const begin = new Date(req.query.begin);
+    const end = new Date(req.query.end);
+    end.setDate(end.getDate()+1);
+    console.log(begin, end);
+    try {
+        const historys = await History.find({
+            account: req.logonEmail,
+            itemDate: { $gte: begin, $lt: end },
+        }).sort("itemDate").lean();
+        return resp.status(200).json({ result: true, datas: historys });
+    } catch (err) {
+        console.log(err);
+        resp.status(500).send({ result: false, "message": err.message });
+    }
+});
+
+
 router.post("/write", async (req, resp) => {
     const account = req.logonEmail;
     try {
